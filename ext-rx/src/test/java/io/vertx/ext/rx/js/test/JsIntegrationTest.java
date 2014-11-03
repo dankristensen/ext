@@ -87,6 +87,11 @@ public class JsIntegrationTest extends VertxTestBase {
   }
 
   @Test
+  public void testConcat() throws Throwable {
+    deployTest("test_concat.js");
+  }
+
+  @Test
   public void testTimeMap() throws Throwable {
     deployTest("test_time_map.js");
   }

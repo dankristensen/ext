@@ -64,6 +64,11 @@ public class GroovyIntegrationTest extends VertxTestBase {
     runScript("src/test/groovy/testTimeMap.groovy");
   }
 
+  @Test
+  public void testConcat() throws Exception {
+    runScript("src/test/groovy/testConcat.groovy");
+  }
+
   private void runScript(String script) throws Exception {
     GroovyShell gcl = new GroovyShell();
     Script s = gcl.parse(new File(script));

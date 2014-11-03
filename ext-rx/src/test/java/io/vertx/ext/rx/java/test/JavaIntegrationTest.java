@@ -313,8 +313,7 @@ public class JavaIntegrationTest extends VertxTestBase {
     Observable<Long> obs = Observable.concat(o1, o2);
     AtomicInteger count = new AtomicInteger();
     obs.subscribe(msg -> count.incrementAndGet(),
-        err -> {
-        },
+        err -> fail(),
         () -> {
           assertEquals(2, count.get());
           testComplete();

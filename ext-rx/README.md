@@ -56,6 +56,25 @@ Handler<AsyncResult<Server>> o = RxHelper.toHandler(
 );
 ```
 
+### Scheduler support
+
+The reactive extension sometimes needs to schedule actions, for instance `Observable#timer` create and returns
+a timer that emit periodic events. By default, scheduled actions are managed by RxJava, it means that the
+timer thread are not Vert.x threads and therefore not executing in a Vert.x event loop.
+
+When an RxJava method deals with a scheduler, it accepts an overloaded method accepting an extra `Rx.Scheduler`,
+the `RxHelper#scheduler(vertx)` method will return a scheduler that can be used in such places.
+
+```
+Observable<Long> timer = Observable.timer(100, 100, TimeUnit.MILLISECONDS, RxHelper.scheduler(vertx));
+```
+
+It is also possible to configure RxJava to use a scheduler by default, it can be used in your application:
+
+```
+rx.plugins.RxJavaPlugins.getInstance().registerSchedulersHook(RxHelper.schedulerHook(vertx))
+```
+
 ### Examples
 
 #### Buffering + map/reduce with the event bus
@@ -156,6 +175,11 @@ var observer = Rx.Observer.create(
 var handler = observer.toHandler();
 ```
 
+### Scheduler support
+
+RxJS relies on the default context method _timeout_ and _interval_ functions to schedule operations. The
+vertx-js integration implements such functions providing an out of the box scheduler support.
+
 ### Examples
 
 #### Buffering + map/reduce with the event bus
@@ -200,6 +224,25 @@ The RxGroovy extension module adds the `toHandler` method on the `rx.Observer` c
 ```
 Observer<Server> observer = ...;
 Handler<AsyncResult<Server>> o = observer.toHandler();
+```
+
+### Scheduler support
+
+The reactive extension sometimes needs to schedule actions, for instance `Observable#timer` create and returns
+a timer that emit periodic events. By default, scheduled actions are managed by RxJava, it means that the
+timer thread are not Vert.x threads and therefore not executing in a Vert.x event loop.
+
+When an RxJava method deals with a scheduler, it accepts an overloaded method accepting an extra `Rx.Scheduler`,
+the RxGroovy extension module adds to the `Vertx` class the `scheduler()` method will return a scheduler that can be used in such places.
+
+```
+Observable<Long> timer = Observable.timer(100, 100, TimeUnit.MILLISECONDS, vertx.scheduler());
+```
+
+It is also possible to configure RxJava to use a scheduler by default, it can be used in your application:
+
+```
+rx.plugins.RxJavaPlugins.getInstance().registerSchedulersHook(RxHelper.schedulerHook(vertx))
 ```
 
 ### Examples

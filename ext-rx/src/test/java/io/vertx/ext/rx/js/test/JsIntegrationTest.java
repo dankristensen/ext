@@ -77,6 +77,16 @@ public class JsIntegrationTest extends VertxTestBase {
   }
 
   @Test
+  public void testScheduledTimer() throws Throwable {
+    deployTest("test_scheduled_timer.js");
+  }
+
+  @Test
+  public void testScheduledBuffer() throws Throwable {
+    deployTest("test_scheduled_buffer.js");
+  }
+
+  @Test
   public void testTimeMap() throws Throwable {
     deployTest("test_time_map.js");
   }

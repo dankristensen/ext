@@ -2,12 +2,15 @@ package io.vertx.ext.rx.java;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
 import io.vertx.core.streams.ReadStream;
 import rx.Observable;
 import rx.Observer;
+import rx.Scheduler;
 import rx.Subscriber;
 import rx.functions.Action0;
 import rx.functions.Action1;
+import rx.plugins.RxJavaSchedulersHook;
 
 /**
  * A set of helpers for RxJava {@link Observable} with Vert.x {@link ReadStream} and
@@ -90,5 +93,38 @@ public class RxHelper {
     ObservableHandler<T> observable = RxHelper.<T>observableHandler();
     observable.subscribe(onNext, onError, onComplete);
     return observable.asHandler();
+  }
+
+  /**
+   * Create a scheduler for a {@link Vertx} object.
+   *
+   * @param vertx the vertx object
+   * @return the scheduler
+   */
+  public static Scheduler scheduler(Vertx vertx) {
+    return new ContextScheduler(vertx);
+  }
+
+  /**
+   * Create a scheduler hook for a {@link Vertx} object.
+   *
+   * @param vertx the vertx object
+   * @return the scheduler hook
+   */
+  public static RxJavaSchedulersHook schedulerHook(Vertx vertx) {
+    return new RxJavaSchedulersHook() {
+      @Override
+      public Scheduler getComputationScheduler() {
+        return scheduler(vertx);
+      }
+      @Override
+      public Scheduler getIOScheduler() {
+        return scheduler(vertx);
+      }
+      @Override
+      public Scheduler getNewThreadScheduler() {
+        return scheduler(vertx);
+      }
+    };
   }
 }

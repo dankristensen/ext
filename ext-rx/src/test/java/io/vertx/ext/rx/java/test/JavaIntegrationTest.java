@@ -1,5 +1,6 @@
 package io.vertx.ext.rx.java.test;
 
+import io.vertx.core.Context;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.MessageConsumer;
@@ -14,6 +15,7 @@ import io.vertx.core.net.NetClientOptions;
 import io.vertx.core.net.NetServer;
 import io.vertx.core.net.NetServerOptions;
 import io.vertx.core.net.NetSocket;
+import io.vertx.core.streams.ReadStream;
 import io.vertx.ext.rx.java.ObservableHandler;
 import io.vertx.ext.rx.java.RxHelper;
 import io.vertx.test.core.VertxTestBase;
@@ -26,6 +28,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
@@ -46,11 +50,13 @@ public class JavaIntegrationTest extends VertxTestBase {
           unsubscribe();
         }
       }
+
       @Override
       public void onError(Throwable throwable) {
         System.out.println("throwable = " + throwable);
         fail(throwable.getMessage());
       }
+
       @Override
       public void onCompleted() {
         assertEquals(Arrays.asList("msg1", "msg2", "msg3"), items);
@@ -74,10 +80,12 @@ public class JavaIntegrationTest extends VertxTestBase {
       public void onNext(String s) {
         fail("Was not expecting item " + s);
       }
+
       @Override
       public void onError(Throwable throwable) {
         fail("Was not esxpecting error " + throwable.getMessage());
       }
+
       @Override
       public void onCompleted() {
         unsubscribe();
@@ -87,10 +95,12 @@ public class JavaIntegrationTest extends VertxTestBase {
             assertEquals("msg1", s);
             unsubscribe();
           }
+
           @Override
           public void onError(Throwable throwable) {
             fail("Was not esxpecting error " + throwable.getMessage());
           }
+
           @Override
           public void onCompleted() {
             assertFalse(consumer.isRegistered());
@@ -116,6 +126,7 @@ public class JavaIntegrationTest extends VertxTestBase {
         assertEquals(Arrays.asList("msg0", "msg1", "msg2", "msg3"), obtained);
         consumer.endHandler(v -> testComplete());
       }
+
       @Override
       public void onError(Throwable e) {
         fail(e.getMessage());
@@ -126,7 +137,7 @@ public class JavaIntegrationTest extends VertxTestBase {
         obtained.add(str);
       }
     });
-    for (int i = 0;i < 7;i++) {
+    for (int i = 0; i < 7; i++) {
       eb.send("the-address", "msg" + i);
     }
     await();
@@ -292,6 +303,107 @@ public class JavaIntegrationTest extends VertxTestBase {
       }
     });
     server.listen(onListen.asHandler());
+    await();
+  }
+
+  @Test
+  public void testConcatOperator() {
+    Observable<Long> o1 = RxHelper.toObservable(vertx.timerStream(100));
+    Observable<Long> o2 = RxHelper.toObservable(vertx.timerStream(100));
+    Observable<Long> obs = Observable.concat(o1, o2);
+    AtomicInteger count = new AtomicInteger();
+    obs.subscribe(msg -> count.incrementAndGet(),
+        err -> {
+        },
+        () -> {
+          assertEquals(2, count.get());
+          testComplete();
+        });
+    await();
+  }
+
+  @Test
+  public void testScheduledTimer() {
+    vertx.runOnContext(v -> {
+      long startTime = System.currentTimeMillis();
+      Context initCtx = vertx.context();
+      Observable.timer(100, 100, TimeUnit.MILLISECONDS, RxHelper.scheduler(vertx)).take(10).subscribe(new Observer<Long>() {
+        public void onNext(Long value) {
+          assertEquals(initCtx, vertx.context());
+        }
+        public void onError(Throwable e) {
+          fail("unexpected failure");
+        }
+        public void onCompleted() {
+          long timeTaken = System.currentTimeMillis() - startTime;
+          assertTrue(Math.abs(timeTaken - 1000) < 100);
+          testComplete();
+        }
+      });
+    });
+    await();
+  }
+
+  @Test
+  public void testScheduledBuffer() {
+    vertx.runOnContext(v -> {
+      long startTime = System.currentTimeMillis();
+      Context initCtx = vertx.context();
+      Observable
+          .timer(10, 10, TimeUnit.MILLISECONDS, RxHelper.scheduler(vertx))
+          .buffer(100, TimeUnit.MILLISECONDS, RxHelper.scheduler(vertx))
+          .take(10)
+          .subscribe(new Observer<List<Long>>() {
+            private int eventCount = 0;
+            public void onNext(List<Long> value) {
+              eventCount++;
+              assertEquals(initCtx, vertx.context());
+            }
+            public void onError(Throwable e) {
+              fail("unexpected failure");
+            }
+            public void onCompleted() {
+              long timeTaken = System.currentTimeMillis() - startTime;
+              assertEquals(10, eventCount);
+              assertTrue(Math.abs(timeTaken - 1000) < 100);
+              testComplete();
+            }
+          });
+    });
+    await();
+  }
+
+  @Test
+  public void testTimeMap() {
+    vertx.runOnContext(v -> {
+      Context initCtx = vertx.context();
+      EventBus eb = vertx.eventBus();
+      ReadStream<String> consumer = eb.<String>localConsumer("the-address").bodyStream();
+      Observer<String> observer = new Observer<String>() {
+        @Override
+        public void onNext(String s) {
+          assertEquals(initCtx, vertx.context());
+          assertEquals("msg1msg2msg3", s);
+          testComplete();
+        }
+        @Override
+        public void onError(Throwable e) {
+          fail(e.getMessage());
+        }
+        @Override
+        public void onCompleted() {
+          fail();
+        }
+      };
+      Observable<String> observable = RxHelper.toObservable(consumer);
+      observable.
+          buffer(500, TimeUnit.MILLISECONDS, RxHelper.scheduler(vertx)).
+          map(samples -> samples.stream().reduce("", (a, b) -> a + b)).
+          subscribe(observer);
+      eb.send("the-address", "msg1");
+      eb.send("the-address", "msg2");
+      eb.send("the-address", "msg3");
+    });
     await();
   }
 }

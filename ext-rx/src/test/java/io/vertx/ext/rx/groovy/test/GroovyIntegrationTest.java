@@ -49,6 +49,21 @@ public class GroovyIntegrationTest extends VertxTestBase {
     runScript("src/test/groovy/testObserverToHandler.groovy");
   }
 
+  @Test
+  public void testScheduledTimer() throws Exception {
+    runScript("src/test/groovy/testScheduledTimer.groovy");
+  }
+
+  @Test
+  public void testScheduledBuffer() throws Exception {
+    runScript("src/test/groovy/testScheduledBuffer.groovy");
+  }
+
+  @Test
+  public void testTimeMap() throws Exception {
+    runScript("src/test/groovy/testTimeMap.groovy");
+  }
+
   private void runScript(String script) throws Exception {
     GroovyShell gcl = new GroovyShell();
     Script s = gcl.parse(new File(script));

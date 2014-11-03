@@ -1,10 +1,12 @@
 var test = require("test");
 Rx = require("rx.vertx");
 Rx = require("rx.time");
+var initContext = vertx.context();
 var eb = vertx.eventBus();
 var consumer = eb.localConsumer("the-address").bodyStream();
 var observer = Rx.Observer.create(
   function (evt) {
+    test.assertEquals(initContext._jdel(), vertx.context()._jdel());
     test.assertEquals("msg1msg2msg3", evt);
     test.testComplete();
   },

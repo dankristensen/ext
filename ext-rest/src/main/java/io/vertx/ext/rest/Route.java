@@ -24,21 +24,19 @@ import io.vertx.core.http.HttpMethod;
  */
 public interface Route {
 
-  Route setMethod(HttpMethod method);
+  Route method(HttpMethod method);
 
-  Route addMethod(HttpMethod method);
+  Route path(String path);
 
-  Route setPath(String path);
+  Route pathRegex(String path);
 
-  Route setPathWithRegex(String path);
+  Route produces(String contentType);
 
-  Route addProduces(String contentType);
+  Route consumes(String contentType);
 
-  Route addConsumes(String contentType);
+  Route order(int order);
 
-  Route setOrder(int order);
-
-  Route setLast();
+  Route last();
 
   Route handler(Handler<RouteContext> requestHandler);
 

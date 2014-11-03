@@ -52,7 +52,7 @@ public class Example {
     });
 
     // This handler would be called for ALL requests to the path "/foo/bar"
-    router.route().setPath("foo/bar").handler(ctx -> {
+    router.route().path("foo/bar").handler(ctx -> {
 
       ctx.request().response().end("foo!");
 
@@ -61,7 +61,7 @@ public class Example {
     });
 
     // Like the above but with embedded params
-    router.route().setPath("foo/bar/:id").handler(ctx -> {
+    router.route().path("foo/bar/:id").handler(ctx -> {
 
       ctx.request().response().end("foo " + ctx.request().params().get("id"));
 
@@ -70,7 +70,7 @@ public class Example {
     });
 
     // Like the above but with regex
-    router.route().setPathWithRegex("foo//bar/[abc]?").handler(ctx -> {
+    router.route().pathRegex("foo//bar/[abc]?").handler(ctx -> {
 
       ctx.request().response().end("foo " + ctx.request().params().get("id"));
 
@@ -79,7 +79,7 @@ public class Example {
     });
 
     // This handler would be called for ALL GET requests to the path "/foo/bar"
-    router.route().setPath("foo/bar").setMethod(HttpMethod.GET).handler(ctx -> {
+    router.route().path("foo/bar").method(HttpMethod.GET).handler(ctx -> {
 
       ctx.request().response().end("foo!");
 
@@ -88,7 +88,7 @@ public class Example {
     });
 
     // This handler would be called for ALL GET or POST requests to the path "/foo/bar"
-    router.route().setPath("foo/bar").addMethod(HttpMethod.GET).addMethod(HttpMethod.POST).handler(ctx -> {
+    router.route().path("foo/bar").method(HttpMethod.GET).method(HttpMethod.POST).handler(ctx -> {
 
       ctx.request().response().end("foo!");
 
@@ -97,16 +97,17 @@ public class Example {
     });
 
     // This handler would be called for any POSTs to the uri with content-type "application/json"
-    router.route().setPath("foo/bar/order").setMethod(HttpMethod.POST).addConsumes("application/json").handler(ctx -> {
+    router.route().path("foo/bar/order").method(HttpMethod.POST).consumes("application/json").handler(ctx -> {
 
       JsonObject body = ctx.bodyJson();
 
+      // By default the body is already parsed.
 
 
     });
 
     // This handler would be called for any POSTs to the uri that have an Accept header that contains "application/json"
-    router.route().setPath("foo/bar/order").setMethod(HttpMethod.POST).addProduces("application/json").handler(ctx -> {
+    router.route().path("foo/bar/order").method(HttpMethod.POST).produces("application/json").handler(ctx -> {
 
 
     });
@@ -114,17 +115,17 @@ public class Example {
     // Handlers can have an order in the chain. Default order is the order they are added, but this can be explicit, e.g.
 
     // Handler at the head of the chain
-    router.route().setOrder(0).handler(ctx -> {
+    router.route().order(0).handler(ctx -> {
 
     });
 
     // Handler at end of the chain
-    router.route().setLast().handler(ctx -> {
+    router.route().last().handler(ctx -> {
 
     });
 
     // Routes can also be temporarily disabled and enabled
-    Route route = router.route().setPath("foo/bar").handler(ctx -> {
+    Route route = router.route().path("foo/bar").handler(ctx -> {
 
     });
     route.disable();
@@ -136,7 +137,7 @@ public class Example {
     // Set a 404 handler - this will be called if not handled elsewhere
 
     // 404 handler
-    router.route().setLast().handler(ctx -> {
+    router.route().last().handler(ctx -> {
       ctx.request().response().setStatusCode(404).end();
     });
 
@@ -156,19 +157,19 @@ public class Example {
 
     Router subRouter = Router.router();
 
-    router.route().setPath("/subapp").handler(subRouter);
+    router.route().path("/subapp").handler(subRouter);
 
-    subRouter.route().setPath("/sub/app/blah").handler(ctx -> { });
+    subRouter.route().path("/sub/app/blah").handler(ctx -> { });
 
     // User defined data
     // You can add user defined data to the context so it's available to subsequenct handlers in the chain:
 
-    router.route().setPath("/foo/bar").handler(ctx -> {
+    router.route().path("/foo/bar").handler(ctx -> {
       ctx.contextData().put("wibble", 123);
       ctx.next();
     });
 
-    router.route().setPath("/foo/bar").handler(ctx -> {
+    router.route().path("/foo/bar").handler(ctx -> {
       ctx.request().response().end("wibble is " + ctx.contextData().get("wibble"));
     });
 

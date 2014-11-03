@@ -14,12 +14,12 @@
  * You may elect to redistribute this code under either of these licenses.
  */
 
-package io.vertx.ext.routematcher.impl;
+package io.vertx.ext.rest.impl;
 
 import io.vertx.core.Handler;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerRequest;
-import io.vertx.ext.routematcher.RouteMatcher;
+import io.vertx.ext.rest.RouteMatcher;
 
 import java.util.ArrayList;
 import java.util.HashMap;

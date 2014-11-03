@@ -14,7 +14,7 @@
  * You may elect to redistribute this code under either of these licenses.
  */
 
-package io.vertx.ext.routematcher.test;
+package io.vertx.ext.rest.test;
 
 import io.vertx.core.Handler;
 import io.vertx.core.http.HttpClientOptions;
@@ -22,7 +22,7 @@ import io.vertx.core.http.HttpClientResponse;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.http.HttpServerRequest;
-import io.vertx.ext.routematcher.RouteMatcher;
+import io.vertx.ext.rest.RouteMatcher;
 import io.vertx.test.core.HttpTestBase;
 import org.junit.Test;
 

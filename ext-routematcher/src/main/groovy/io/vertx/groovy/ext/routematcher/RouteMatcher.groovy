@@ -16,7 +16,6 @@
 
 package io.vertx.groovy.ext.routematcher;
 import groovy.transform.CompileStatic
-import io.vertx.lang.groovy.InternalHelper
 import io.vertx.groovy.core.http.HttpServerRequest
 import io.vertx.core.http.HttpMethod
 import io.vertx.core.Handler
@@ -25,15 +24,15 @@ import io.vertx.core.Handler
  */
 @CompileStatic
 public class RouteMatcher {
-  final def io.vertx.ext.routematcher.RouteMatcher delegate;
-  public RouteMatcher(io.vertx.ext.routematcher.RouteMatcher delegate) {
+  final def io.vertx.ext.rest.RouteMatcher delegate;
+  public RouteMatcher(io.vertx.ext.rest.RouteMatcher delegate) {
     this.delegate = delegate;
   }
   public Object getDelegate() {
     return delegate;
   }
   public static RouteMatcher routeMatcher() {
-    def ret= RouteMatcher.FACTORY.apply(io.vertx.ext.routematcher.RouteMatcher.routeMatcher());
+    def ret= RouteMatcher.FACTORY.apply(io.vertx.ext.rest.RouteMatcher.routeMatcher());
     return ret;
   }
   public RouteMatcher accept(HttpServerRequest request) {
@@ -107,7 +106,7 @@ public class RouteMatcher {
     return this;
   }
 
-  static final java.util.function.Function<io.vertx.ext.routematcher.RouteMatcher, RouteMatcher> FACTORY = io.vertx.lang.groovy.Factories.createFactory() {
-    io.vertx.ext.routematcher.RouteMatcher arg -> new RouteMatcher(arg);
+  static final java.util.function.Function<io.vertx.ext.rest.RouteMatcher, RouteMatcher> FACTORY = io.vertx.lang.groovy.Factories.createFactory() {
+    io.vertx.ext.rest.RouteMatcher arg -> new RouteMatcher(arg);
   };
 }

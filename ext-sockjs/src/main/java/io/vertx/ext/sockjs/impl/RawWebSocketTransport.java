@@ -26,7 +26,7 @@ import io.vertx.core.http.impl.WebSocketMatcher;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.impl.LoggerFactory;
 import io.vertx.core.net.SocketAddress;
-import io.vertx.ext.routematcher.RouteMatcher;
+import io.vertx.ext.rest.RouteMatcher;
 import io.vertx.ext.sockjs.SockJSSocket;
 
 /**

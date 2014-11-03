@@ -14,14 +14,14 @@
  * You may elect to redistribute this code under either of these licenses.
  */
 
-package io.vertx.ext.routematcher;
+package io.vertx.ext.rest;
 
 import io.vertx.codegen.annotations.Fluent;
 import io.vertx.codegen.annotations.VertxGen;
 import io.vertx.core.Handler;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerRequest;
-import io.vertx.ext.routematcher.impl.RouteMatcherImpl;
+import io.vertx.ext.rest.impl.RouteMatcherImpl;
 
 /**
  * @author <a href="http://tfox.org">Tim Fox</a>

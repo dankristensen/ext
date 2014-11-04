@@ -16,6 +16,8 @@
 
 package io.vertx.ext.rest;
 
+import io.vertx.codegen.annotations.CacheReturn;
+import io.vertx.codegen.annotations.VertxGen;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonObject;
@@ -25,15 +27,20 @@ import java.util.Map;
 /**
  * @author <a href="http://tfox.org">Tim Fox</a>
  */
+@VertxGen
 public interface RouteContext {
 
+  @CacheReturn
   HttpServerRequest request();
 
+  @CacheReturn
   Buffer bodyBuffer();
 
+  @CacheReturn
   JsonObject bodyJson();
 
-  Map<String, Object> contextData();
+  @CacheReturn
+  Map<String, String> contextData();
 
   Throwable failure();
 

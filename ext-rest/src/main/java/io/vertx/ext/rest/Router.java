@@ -16,8 +16,10 @@
 
 package io.vertx.ext.rest;
 
+import io.vertx.codegen.annotations.Fluent;
 import io.vertx.codegen.annotations.VertxGen;
 import io.vertx.core.Handler;
+import io.vertx.core.http.HttpServerRequest;
 
 import java.util.List;
 
@@ -30,6 +32,9 @@ public interface Router extends Handler<RouteContext> {
   static Router router() {
     return null;
   }
+
+  @Fluent
+  Router accept(HttpServerRequest request);
 
   Route route();
 

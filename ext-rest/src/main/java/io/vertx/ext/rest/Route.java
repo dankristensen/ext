@@ -16,12 +16,14 @@
 
 package io.vertx.ext.rest;
 
+import io.vertx.codegen.annotations.VertxGen;
 import io.vertx.core.Handler;
 import io.vertx.core.http.HttpMethod;
 
 /**
  * @author <a href="http://tfox.org">Tim Fox</a>
  */
+@VertxGen
 public interface Route {
 
   Route method(HttpMethod method);

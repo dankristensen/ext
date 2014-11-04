@@ -16,7 +16,10 @@
 
 package io.vertx.ext.rest;
 
+import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
+import io.vertx.core.http.HttpServer;
+import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.json.JsonObject;
 
 /**
@@ -40,7 +43,13 @@ public class Example {
 
   private void routes() {
 
+    Vertx vertx = Vertx.vertx();
+
+    HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(8080));
+
     Router router = Router.router();
+
+    server.requestHandler(router::accept);
 
     // This handler would be called for ALL requests
     router.route().handler(ctx -> {
@@ -165,7 +174,7 @@ public class Example {
     // You can add user defined data to the context so it's available to subsequenct handlers in the chain:
 
     router.route().path("/foo/bar").handler(ctx -> {
-      ctx.contextData().put("wibble", 123);
+      ctx.contextData().put("wibble", "blah");
       ctx.next();
     });
 

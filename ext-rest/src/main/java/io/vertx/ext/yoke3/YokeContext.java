@@ -14,38 +14,27 @@
  *  You may elect to redistribute this code under either of these licenses.
  */
 
-package io.vertx.ext.rest;
+package io.vertx.ext.yoke3;
 
 import io.vertx.codegen.annotations.CacheReturn;
-import io.vertx.codegen.annotations.VertxGen;
-import io.vertx.core.http.HttpServerRequest;
-import io.vertx.core.http.HttpServerResponse;
-
-import java.util.Map;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.json.JsonObject;
+import io.vertx.ext.rest.RouteContext;
 
 /**
  * @author <a href="http://tfox.org">Tim Fox</a>
  */
-@VertxGen
-public interface RouteContext {
+public interface YokeContext extends RouteContext {
+
 
   @CacheReturn
-  HttpServerRequest request();
+  Buffer bodyBuffer();
 
   @CacheReturn
-  HttpServerResponse response();
+  JsonObject bodyJson();
 
-  @CacheReturn
-  Map<String, String> contextData();
+  // Any other Yoke specific stuff
 
-  // TODO
-  // 1. Instead of a map, add all the put/get methods like in JSONObject
 
-  String getString(String key);
 
-  Throwable failure();
-
-  // If in an exception handler, then next will call the next exception handler if one
-  // if not the default exception handler will be called.
-  void next();
 }

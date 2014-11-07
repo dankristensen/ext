@@ -14,40 +14,18 @@
  *  You may elect to redistribute this code under either of these licenses.
  */
 
-package io.vertx.ext.rest;
+package io.vertx.ext.yoke3;
 
-import io.vertx.codegen.annotations.VertxGen;
 import io.vertx.core.Handler;
-import io.vertx.core.http.HttpMethod;
+import io.vertx.ext.rest.Route;
 
 /**
  * @author <a href="http://tfox.org">Tim Fox</a>
  */
-@VertxGen
-public interface Route {
+public interface YokeRoute extends Route {
 
-  Route method(HttpMethod method);
-
-  Route path(String path);
-
-  Route pathRegex(String path);
-
-  Route produces(String contentType);
-
-  Route consumes(String contentType);
-
-  Route order(int order);
-
-  Route last();
-
-  Route handler(Handler<RouteContext> requestHandler);
+  YokeRoute yokeHandler(Handler<YokeContext> requestHandler);
 
   // Exception handler will be called for any unchecked exceptions thrown from any handlers
-  Route exceptionHandler(Handler<RouteContext> exceptionHandler);
-
-  Route remove();
-
-  Route disable();
-
-  Route enable();
+  YokeRoute yokeExceptionHandler(Handler<YokeContext> exceptionHandler);
 }

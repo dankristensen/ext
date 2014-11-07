@@ -21,6 +21,7 @@ import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.yoke3.Yoke;
 
 /**
  * @author <a href="http://tfox.org">Tim Fox</a>
@@ -108,7 +109,7 @@ public class Example {
     // This handler would be called for any POSTs to the uri with content-type "application/json"
     router.route().path("foo/bar/order").method(HttpMethod.POST).consumes("application/json").handler(ctx -> {
 
-      JsonObject body = ctx.bodyJson();
+      //JsonObject body = ctx.bodyJson();
 
       // By default the body is already parsed.
 
@@ -179,9 +180,21 @@ public class Example {
     });
 
     router.route().path("/foo/bar").handler(ctx -> {
+
+
       ctx.request().response().end("wibble is " + ctx.contextData().get("wibble"));
     });
 
+
+
+
+  }
+
+  private void yokeExample() {
+    Yoke yoke = Yoke.yoke();
+    yoke.route(HttpMethod.POST, "/foo/bar").yokeHandler(ctx -> {
+      JsonObject body = ctx.bodyJson();
+    });
 
   }
 

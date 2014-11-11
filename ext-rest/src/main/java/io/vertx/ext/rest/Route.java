@@ -38,12 +38,11 @@ public interface Route {
 
   Route order(int order);
 
-  Route last();
+  Route last(boolean last);
 
-  Route handler(Handler<RouteContext> requestHandler);
+  Route handler(Handler<RoutingContext> requestHandler);
 
-  // Exception handler will be called for any unchecked exceptions thrown from any handlers
-  Route exceptionHandler(Handler<RouteContext> exceptionHandler);
+  Route exceptionHandler(Handler<FailureRoutingContext> exceptionHandler);
 
   Route remove();
 
@@ -51,3 +50,5 @@ public interface Route {
 
   Route enable();
 }
+
+

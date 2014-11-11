@@ -14,27 +14,18 @@
  *  You may elect to redistribute this code under either of these licenses.
  */
 
-package io.vertx.ext.yoke3;
+package io.vertx.ext.rest;
 
-import io.vertx.core.Handler;
-import io.vertx.ext.rest.RoutingContext;
+import io.vertx.codegen.annotations.CacheReturn;
+import io.vertx.codegen.annotations.VertxGen;
 
 /**
  * @author <a href="http://tfox.org">Tim Fox</a>
  */
-public class YokeHandler implements Handler<RoutingContext> {
+@VertxGen
+public interface FailureRoutingContext extends RoutingContext {
 
+  @CacheReturn
+  Throwable failure();
 
-  public YokeHandler() {
-    super();
-  }
-
-  public void handleYoke(YokeContext ctx) {
-
-  }
-
-  @Override
-  public void handle(RoutingContext ctx) {
-    //handle(YokeContext.create(ctx));
-  }
 }

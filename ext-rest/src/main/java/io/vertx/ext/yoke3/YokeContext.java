@@ -19,12 +19,12 @@ package io.vertx.ext.yoke3;
 import io.vertx.codegen.annotations.CacheReturn;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.rest.RouteContext;
+import io.vertx.ext.rest.RoutingContext;
 
 /**
  * @author <a href="http://tfox.org">Tim Fox</a>
  */
-public interface YokeContext extends RouteContext {
+public interface YokeContext extends RoutingContext {
 
 
   @CacheReturn

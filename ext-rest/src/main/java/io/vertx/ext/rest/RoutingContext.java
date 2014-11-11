@@ -21,13 +21,11 @@ import io.vertx.codegen.annotations.VertxGen;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 
-import java.util.Map;
-
 /**
  * @author <a href="http://tfox.org">Tim Fox</a>
  */
 @VertxGen
-public interface RouteContext {
+public interface RoutingContext {
 
   @CacheReturn
   HttpServerRequest request();
@@ -35,17 +33,8 @@ public interface RouteContext {
   @CacheReturn
   HttpServerResponse response();
 
-  @CacheReturn
-  Map<String, String> contextData();
+//  @CacheReturn
+//  Map<String, Object> contextData();
 
-  // TODO
-  // 1. Instead of a map, add all the put/get methods like in JSONObject
-
-  String getString(String key);
-
-  Throwable failure();
-
-  // If in an exception handler, then next will call the next exception handler if one
-  // if not the default exception handler will be called.
   void next();
 }

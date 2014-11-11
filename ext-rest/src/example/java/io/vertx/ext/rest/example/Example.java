@@ -14,13 +14,15 @@
  *  You may elect to redistribute this code under either of these licenses.
  */
 
-package io.vertx.ext.rest;
+package io.vertx.ext.rest.example;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.rest.Route;
+import io.vertx.ext.rest.Router;
 import io.vertx.ext.yoke3.Yoke;
 
 /**
@@ -130,7 +132,7 @@ public class Example {
     });
 
     // Handler at end of the chain
-    router.route().last().handler(ctx -> {
+    router.route().last(true).handler(ctx -> {
 
     });
 
@@ -147,7 +149,7 @@ public class Example {
     // Set a 404 handler - this will be called if not handled elsewhere
 
     // 404 handler
-    router.route().last().handler(ctx -> {
+    router.route().last(true).handler(ctx -> {
       ctx.request().response().setStatusCode(404).end();
     });
 
@@ -175,14 +177,16 @@ public class Example {
     // You can add user defined data to the context so it's available to subsequenct handlers in the chain:
 
     router.route().path("/foo/bar").handler(ctx -> {
-      ctx.contextData().put("wibble", "blah");
+      //ctx.contextData().put("wibble", "blah");
       ctx.next();
     });
 
     router.route().path("/foo/bar").handler(ctx -> {
 
 
-      ctx.request().response().end("wibble is " + ctx.contextData().get("wibble"));
+      //ctx.request().response().end("wibble is " + ctx.contextData().get("wibble"));
+
+      //JsonObject bodyJson = bodyJson(ctx);
     });
 
 

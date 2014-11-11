@@ -16,11 +16,11 @@
 
 package io.vertx.ext.rest;
 
-import io.vertx.codegen.annotations.Fluent;
 import io.vertx.codegen.annotations.VertxGen;
 import io.vertx.core.Handler;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerRequest;
+import io.vertx.ext.rest.impl.RouterImpl;
 
 import java.util.List;
 
@@ -28,24 +28,23 @@ import java.util.List;
  * @author <a href="http://tfox.org">Tim Fox</a>
  */
 @VertxGen
-public interface Router extends Handler<RouteContext> {
+public interface Router extends Handler<RoutingContext> {
 
   static Router router() {
-    return null;
+    return new RouterImpl();
   }
 
-  @Fluent
-  Router accept(HttpServerRequest request);
+  void accept(HttpServerRequest request);
 
   Route route();
 
-  // Convenience methods where the method/path is already specified
   Route route(HttpMethod method, String path);
 
-  // Convenience methods where the method/regex is already specified
+  Route route(String path);
+
   Route routeWithRegex(HttpMethod method, String regex);
 
-  // Add extra convenience methods e.g. for consumes/produces
+  Route routeWithRegex(String regex);
 
   List<Route> getRoutes();
 

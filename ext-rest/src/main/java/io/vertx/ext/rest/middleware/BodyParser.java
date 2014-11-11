@@ -17,17 +17,21 @@
 package io.vertx.ext.rest.middleware;
 
 import io.vertx.core.Handler;
-import io.vertx.ext.rest.RouteContext;
+import io.vertx.ext.rest.RoutingContext;
 
 /**
  * @author <a href="http://tfox.org">Tim Fox</a>
  */
-public class BodyParser implements Handler<RouteContext> {
+public class BodyParser implements Handler<RoutingContext> {
 
   public static final String BODY = "BodyParser.body";
 
   @Override
-  public void handle(RouteContext routeContext) {
+  public void handle(RoutingContext routeContext) {
 
   }
+
+//  public static JsonObject bodyJson(RoutingContext ctx) {
+//    return (JsonObject)ctx.contextData().get(BODY);
+//  }
 }

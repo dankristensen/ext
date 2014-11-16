@@ -19,7 +19,6 @@ import io.vertx.core.streams.ReadStream;
 import io.vertx.ext.rx.java.ObservableHandler;
 import io.vertx.ext.rx.java.RxHelper;
 import io.vertx.test.core.VertxTestBase;
-import org.junit.Ignore;
 import org.junit.Test;
 import rx.Observable;
 import rx.Observer;
@@ -72,7 +71,6 @@ public class JavaIntegrationTest extends VertxTestBase {
   }
 
   @Test
-  @Ignore
   public void testRegisterAgain() {
     EventBus eb = vertx.eventBus();
     MessageConsumer<String> consumer = eb.<String>consumer("the-address");
@@ -126,7 +124,7 @@ public class JavaIntegrationTest extends VertxTestBase {
       @Override
       public void onCompleted() {
         assertEquals(Arrays.asList("msg0", "msg1", "msg2", "msg3"), obtained);
-        consumer.endHandler(v -> testComplete());
+        testComplete();
       }
 
       @Override

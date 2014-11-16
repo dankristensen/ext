@@ -22,17 +22,17 @@ class HandlerAdapter<T> extends SingleOnSubscribeAdapter<T> implements Handler<T
 
   @Override
   public void execute() {
-    stream.handler(this);
     stream.exceptionHandler(this::fireError);
     stream.endHandler(v -> fireComplete());
+    stream.handler(this);
   }
 
   @Override
   public void onUnsubscribed() {
     try {
-      stream.handler(null);
       stream.exceptionHandler(null);
       stream.endHandler(null);
+      stream.handler(null);
     }
     catch(Exception e) {
       // Clearing handlers after stream closed causes issues for some (eg AsyncFile) so silently drop errors

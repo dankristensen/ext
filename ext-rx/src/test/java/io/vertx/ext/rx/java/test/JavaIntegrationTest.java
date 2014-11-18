@@ -16,7 +16,7 @@ import io.vertx.core.net.NetServer;
 import io.vertx.core.net.NetServerOptions;
 import io.vertx.core.net.NetSocket;
 import io.vertx.core.streams.ReadStream;
-import io.vertx.ext.rx.java.ObservableHandler;
+import io.vertx.ext.rx.java.ObservableFuture;
 import io.vertx.ext.rx.java.RxHelper;
 import io.vertx.test.core.VertxTestBase;
 import org.junit.Test;
@@ -29,6 +29,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -145,7 +146,7 @@ public class JavaIntegrationTest extends VertxTestBase {
 
   @Test
   public void testObservableNetSocket() {
-    ObservableHandler<NetServer> onListen = RxHelper.observableHandler();
+    ObservableFuture<NetServer> onListen = RxHelper.observableFuture();
     onListen.subscribe(
         server -> vertx.createNetClient(new NetClientOptions()).connect(1234, "localhost", ar -> {
           assertTrue(ar.succeeded());
@@ -194,13 +195,13 @@ public class JavaIntegrationTest extends VertxTestBase {
         testComplete();
       }
     });
-    server.listen(onListen.asHandler());
+    server.listen(onListen.asFuture());
     await();
   }
 
   @Test
   public void testObservableWebSocket() {
-    ObservableHandler<HttpServer> onListen = RxHelper.observableHandler();
+    ObservableFuture<HttpServer> onListen = RxHelper.observableFuture();
     onListen.subscribe(
         server -> vertx.createHttpClient(new HttpClientOptions()).connectWebsocket(1234, "localhost", "/some/path", ws -> {
           ws.write(Buffer.buffer("foo"));
@@ -247,13 +248,13 @@ public class JavaIntegrationTest extends VertxTestBase {
         testComplete();
       }
     });
-    server.listen(onListen.asHandler());
+    server.listen(onListen.asFuture());
     await();
   }
 
   @Test
   public void testObservableHttpRequest() {
-    ObservableHandler<HttpServer> onListen = RxHelper.observableHandler();
+    ObservableFuture<HttpServer> onListen = RxHelper.observableFuture();
     onListen.subscribe(
         server -> {
           HttpClientRequest req = vertx.createHttpClient(new HttpClientOptions()).request(HttpMethod.PUT, 1234, "localhost", "/some/path", resp -> {
@@ -302,7 +303,7 @@ public class JavaIntegrationTest extends VertxTestBase {
         testComplete();
       }
     });
-    server.listen(onListen.asHandler());
+    server.listen(onListen.asFuture());
     await();
   }
 
@@ -330,9 +331,11 @@ public class JavaIntegrationTest extends VertxTestBase {
         public void onNext(Long value) {
           assertEquals(initCtx, vertx.context());
         }
+
         public void onError(Throwable e) {
           fail("unexpected failure");
         }
+
         public void onCompleted() {
           long timeTaken = System.currentTimeMillis() - startTime;
           assertTrue(Math.abs(timeTaken - 1000) < 100);
@@ -354,13 +357,16 @@ public class JavaIntegrationTest extends VertxTestBase {
           .take(10)
           .subscribe(new Observer<List<Long>>() {
             private int eventCount = 0;
+
             public void onNext(List<Long> value) {
               eventCount++;
               assertEquals(initCtx, vertx.context());
             }
+
             public void onError(Throwable e) {
               fail("unexpected failure");
             }
+
             public void onCompleted() {
               long timeTaken = System.currentTimeMillis() - startTime;
               assertEquals(10, eventCount);
@@ -403,6 +409,54 @@ public class JavaIntegrationTest extends VertxTestBase {
       eb.send("the-address", "msg2");
       eb.send("the-address", "msg3");
     });
+    await();
+  }
+
+  @Test
+  public void testObserverToFuture() {
+    HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(1234)).requestHandler(req -> {});
+    AtomicInteger count = new AtomicInteger();
+    Observer<HttpServer> observer = new Observer<HttpServer>() {
+      @Override
+      public void onCompleted() {
+        server.close();
+        assertEquals(1, count.get());
+        testComplete();
+      }
+
+      @Override
+      public void onError(Throwable e) {
+        fail(e.getMessage());
+      }
+
+      @Override
+      public void onNext(HttpServer httpServer) {
+        count.incrementAndGet();
+      }
+    };
+    server.listen(RxHelper.toFuture(observer));
+    await();
+  }
+
+  @Test
+  public void testObserverToHandler() throws Exception {
+    Observer<Long> observer = new Observer<Long>() {
+      @Override
+      public void onCompleted() {
+        fail();
+      }
+
+      @Override
+      public void onError(Throwable e) {
+        fail(e.getMessage());
+      }
+
+      @Override
+      public void onNext(Long l) {
+        testComplete();
+      }
+    };
+    vertx.setTimer(1, RxHelper.toHandler(observer));
     await();
   }
 }

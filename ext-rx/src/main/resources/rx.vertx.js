@@ -59,7 +59,7 @@
     }
   };
 
-  function toHandler(observer) {
+  function toFuture(observer) {
     return function(result, cause) {
       if (result != null) {
         observer.onNext(result);
@@ -67,6 +67,24 @@
       } else {
         observer.onError(cause);
       }
+    };
+  }
+
+  observerProto.toFuture = function() {
+    return toFuture(this);
+  };
+
+  Rx.observableFuture = function() {
+    var subject = new Rx.Subject();
+    subject.asFuture = function() {
+      return toFuture(subject);
+    };
+    return subject;
+  };
+
+  function toHandler(observer) {
+    return function(result) {
+      observer.onNext(result);
     };
   }
 

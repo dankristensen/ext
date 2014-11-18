@@ -1,12 +1,11 @@
 import io.vertx.groovy.core.Vertx
-import io.vertx.groovy.core.http.HttpServer
 import rx.Observer;
 
 Vertx vertx = Vertx.vertx();
-Observer<HttpServer> observer = new Observer<HttpServer>() {
+Observer<Long> observer = new Observer<Long>() {
   @Override
   void onCompleted() {
-    test.testComplete();
+    test.fail();
   }
 
   @Override
@@ -15,9 +14,9 @@ Observer<HttpServer> observer = new Observer<HttpServer>() {
   }
 
   @Override
-  void onNext(HttpServer httpServer) {
-    // Expected
+  void onNext(Long l) {
+    test.testComplete();
   }
 }
-vertx.createHttpServer(port: 8080).requestHandler({ req -> }).listen(observer.toHandler());
+vertx.setTimer(1, observer.toHandler());
 test.await();

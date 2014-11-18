@@ -45,6 +45,11 @@ public class GroovyIntegrationTest extends VertxTestBase {
   }
 
   @Test
+  public void testObserverToFuture() throws Exception {
+    runScript("src/test/groovy/testObserverToFuture.groovy");
+  }
+
+  @Test
   public void testObserverToHandler() throws Exception {
     runScript("src/test/groovy/testObserverToHandler.groovy");
   }

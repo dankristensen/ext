@@ -67,6 +67,16 @@ public class JsIntegrationTest extends VertxTestBase {
   }
 
   @Test
+  public void testObservableFuture() throws Throwable {
+    deployTest("test_observable_future.js");
+  }
+
+  @Test
+  public void testObserverToFuture() throws Throwable {
+    deployTest("test_observer_to_future.js");
+  }
+
+  @Test
   public void testObservableHandler() throws Throwable {
     deployTest("test_observable_handler.js");
   }

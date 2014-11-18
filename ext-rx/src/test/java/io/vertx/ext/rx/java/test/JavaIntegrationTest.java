@@ -4,8 +4,10 @@ import io.vertx.core.Context;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.MessageConsumer;
+import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpClientOptions;
 import io.vertx.core.http.HttpClientRequest;
+import io.vertx.core.http.HttpClientResponse;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
@@ -17,6 +19,7 @@ import io.vertx.core.net.NetServerOptions;
 import io.vertx.core.net.NetSocket;
 import io.vertx.core.streams.ReadStream;
 import io.vertx.ext.rx.java.ObservableFuture;
+import io.vertx.ext.rx.java.ObservableHandler;
 import io.vertx.ext.rx.java.RxHelper;
 import io.vertx.test.core.VertxTestBase;
 import org.junit.Test;
@@ -457,6 +460,49 @@ public class JavaIntegrationTest extends VertxTestBase {
       }
     };
     vertx.setTimer(1, RxHelper.toHandler(observer));
+    await();
+  }
+
+  @Test
+  public void testHttpClient() {
+    HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(1234));
+    server.requestStream().handler(req -> {
+      req.response().setChunked(true).end("some_content");
+    });
+    server.listen(ar -> {
+      HttpClient client = vertx.createHttpClient(new HttpClientOptions());
+      client.request(HttpMethod.GET, 1234, "localhost", "/the_uri", resp -> {
+        Buffer content = Buffer.buffer();
+        Observable<Buffer> observable = RxHelper.toObservable(resp);
+        observable.forEach(content::appendBuffer, err -> fail(), () -> {
+          server.close();
+          assertEquals("some_content", content.toString("UTF-8"));
+          testComplete();
+        });
+      }).end();
+    });
+    await();
+  }
+
+  @Test
+  public void testHttpClientFlatMap() {
+    HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(1234));
+    server.requestStream().handler(req -> {
+      req.response().setChunked(true).end("some_content");
+    });
+    server.listen(ar -> {
+      HttpClient client = vertx.createHttpClient(new HttpClientOptions());
+      ObservableHandler<HttpClientResponse> observable = RxHelper.observableHandler();
+      client.request(HttpMethod.GET, 1234, "localhost", "/the_uri", observable.asHandler()).end();
+      Buffer content = Buffer.buffer();
+      observable.take(1).flatMap(RxHelper::toObservable).forEach(
+          content::appendBuffer,
+          err -> fail(), () -> {
+        server.close();
+        assertEquals("some_content", content.toString("UTF-8"));
+        testComplete();
+      });
+    });
     await();
   }
 }

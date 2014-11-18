@@ -106,6 +106,16 @@ public class JsIntegrationTest extends VertxTestBase {
     deployTest("test_time_map.js");
   }
 
+  @Test
+  public void testHttpClient() throws Throwable {
+    deployTest("test_http_client.js");
+  }
+
+  @Test
+  public void testHttpClientFlatMap() throws Throwable {
+    deployTest("test_http_client_flatmap.js");
+  }
+
   private void deployTest(String test) {
     vertx.deployVerticle(test, ar -> {
       if (!ar.succeeded()) {

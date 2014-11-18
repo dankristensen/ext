@@ -1,10 +1,8 @@
-import io.vertx.groovy.core.Vertx
 import io.vertx.groovy.core.http.HttpServer
 import rx.Observer
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-Vertx vertx = Vertx.vertx();
 AtomicInteger count = new AtomicInteger()
 Observer<HttpServer> observer = new Observer<HttpServer>() {
   @Override

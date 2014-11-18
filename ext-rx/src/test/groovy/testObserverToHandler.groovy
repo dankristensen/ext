@@ -1,7 +1,5 @@
-import io.vertx.groovy.core.Vertx
 import rx.Observer;
 
-Vertx vertx = Vertx.vertx();
 Observer<Long> observer = new Observer<Long>() {
   @Override
   void onCompleted() {

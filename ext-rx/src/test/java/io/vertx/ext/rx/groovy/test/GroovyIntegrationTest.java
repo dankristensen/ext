@@ -4,10 +4,12 @@ import groovy.lang.Binding;
 import groovy.lang.GroovyClassLoader;
 import groovy.lang.GroovyShell;
 import groovy.lang.Script;
+import io.vertx.core.Vertx;
 import io.vertx.test.core.VertxTestBase;
 import org.junit.Test;
 
 import java.io.File;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
@@ -75,12 +77,22 @@ public class GroovyIntegrationTest extends VertxTestBase {
   }
 
   private void runScript(String script) throws Exception {
-    GroovyShell gcl = new GroovyShell();
-    Script s = gcl.parse(new File(script));
-    Binding binding = new Binding();
-    binding.setProperty("test", this);
-    s.setBinding(binding);
-    s.run();
+    Vertx vertx = Vertx.vertx();
+    try {
+      GroovyShell gcl = new GroovyShell();
+      Script s = gcl.parse(new File(script));
+      Binding binding = new Binding();
+      binding.setProperty("test", this);
+      binding.setProperty("vertx", new io.vertx.groovy.core.Vertx(vertx));
+      s.setBinding(binding);
+      s.run();
+    } finally {
+      CountDownLatch latch = new CountDownLatch(1);
+      vertx.close(v -> {
+        latch.countDown();
+      });
+      latch.await();
+    }
   }
 
 }

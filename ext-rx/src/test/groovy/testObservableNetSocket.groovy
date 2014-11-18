@@ -1,13 +1,11 @@
 import io.vertx.ext.rx.java.RxHelper
 import io.vertx.ext.rx.java.ObservableFuture
-import io.vertx.groovy.core.Vertx
 import io.vertx.groovy.core.buffer.Buffer
 import io.vertx.groovy.core.net.NetServer
 import io.vertx.groovy.core.net.NetSocket
 import io.vertx.groovy.core.streams.ReadStream
 import rx.Observable
 
-Vertx vertx = Vertx.vertx();
 ObservableFuture<NetServer> onListen = RxHelper.observableFuture();
 onListen.subscribe({
   server ->

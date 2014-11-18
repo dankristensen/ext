@@ -1,9 +1,7 @@
-import io.vertx.groovy.core.Vertx
 import rx.Observable
 
 import java.util.concurrent.atomic.AtomicInteger
 
-Vertx vertx = Vertx.vertx();
 def o1 = vertx.timerStream(100).toObservable();
 def o2 = vertx.timerStream(100).toObservable();
 def obs = Observable.concat(o1, o2);

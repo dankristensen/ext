@@ -1,7 +1,6 @@
 import io.vertx.core.http.HttpMethod
 import io.vertx.ext.rx.java.RxHelper
 import io.vertx.ext.rx.java.ObservableFuture
-import io.vertx.groovy.core.Vertx
 import io.vertx.groovy.core.buffer.Buffer
 import io.vertx.groovy.core.http.HttpClientRequest
 import io.vertx.groovy.core.http.HttpServer
@@ -9,8 +8,6 @@ import io.vertx.groovy.core.http.HttpServerRequest
 import rx.Subscriber
 import rx.Observer
 import rx.Observable
-
-Vertx vertx = Vertx.vertx();
 
 ObservableFuture<HttpServer> onListen = RxHelper.observableFuture();
 onListen.subscribe({ server ->

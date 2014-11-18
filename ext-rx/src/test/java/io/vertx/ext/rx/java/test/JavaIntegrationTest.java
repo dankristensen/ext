@@ -32,7 +32,6 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -206,13 +205,13 @@ public class JavaIntegrationTest extends VertxTestBase {
   public void testObservableWebSocket() {
     ObservableFuture<HttpServer> onListen = RxHelper.observableFuture();
     onListen.subscribe(
-        server -> vertx.createHttpClient(new HttpClientOptions()).connectWebsocket(1234, "localhost", "/some/path", ws -> {
+        server -> vertx.createHttpClient(new HttpClientOptions()).connectWebsocket(8080, "localhost", "/some/path", ws -> {
           ws.write(Buffer.buffer("foo"));
           ws.close();
         }),
         error -> fail(error.getMessage())
     );
-    HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(1234).setHost("localhost"));
+    HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(8080).setHost("localhost"));
     Observable<ServerWebSocket> socketObs = RxHelper.toObservable(server.websocketStream());
     socketObs.subscribe(new Subscriber<ServerWebSocket>() {
       @Override
@@ -260,14 +259,14 @@ public class JavaIntegrationTest extends VertxTestBase {
     ObservableFuture<HttpServer> onListen = RxHelper.observableFuture();
     onListen.subscribe(
         server -> {
-          HttpClientRequest req = vertx.createHttpClient(new HttpClientOptions()).request(HttpMethod.PUT, 1234, "localhost", "/some/path", resp -> {
+          HttpClientRequest req = vertx.createHttpClient(new HttpClientOptions()).request(HttpMethod.PUT, 8080, "localhost", "/some/path", resp -> {
           });
           req.putHeader("Content-Length", "3");
           req.write("foo");
         },
         error -> fail(error.getMessage())
     );
-    HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(1234).setHost("localhost"));
+    HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(8080).setHost("localhost"));
     Observable<HttpServerRequest> socketObs = RxHelper.toObservable(server.requestStream());
     socketObs.subscribe(new Subscriber<HttpServerRequest>() {
       @Override
@@ -417,7 +416,7 @@ public class JavaIntegrationTest extends VertxTestBase {
 
   @Test
   public void testObserverToFuture() {
-    HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(1234)).requestHandler(req -> {});
+    HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(8080)).requestHandler(req -> {});
     AtomicInteger count = new AtomicInteger();
     Observer<HttpServer> observer = new Observer<HttpServer>() {
       @Override
@@ -465,13 +464,13 @@ public class JavaIntegrationTest extends VertxTestBase {
 
   @Test
   public void testHttpClient() {
-    HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(1234));
+    HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(8080));
     server.requestStream().handler(req -> {
       req.response().setChunked(true).end("some_content");
     });
     server.listen(ar -> {
       HttpClient client = vertx.createHttpClient(new HttpClientOptions());
-      client.request(HttpMethod.GET, 1234, "localhost", "/the_uri", resp -> {
+      client.request(HttpMethod.GET, 8080, "localhost", "/the_uri", resp -> {
         Buffer content = Buffer.buffer();
         Observable<Buffer> observable = RxHelper.toObservable(resp);
         observable.forEach(content::appendBuffer, err -> fail(), () -> {
@@ -486,14 +485,14 @@ public class JavaIntegrationTest extends VertxTestBase {
 
   @Test
   public void testHttpClientFlatMap() {
-    HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(1234));
+    HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(8080));
     server.requestStream().handler(req -> {
       req.response().setChunked(true).end("some_content");
     });
     server.listen(ar -> {
       HttpClient client = vertx.createHttpClient(new HttpClientOptions());
       ObservableHandler<HttpClientResponse> observable = RxHelper.observableHandler();
-      client.request(HttpMethod.GET, 1234, "localhost", "/the_uri", observable.asHandler()).end();
+      client.request(HttpMethod.GET, 8080, "localhost", "/the_uri", observable.asHandler()).end();
       Buffer content = Buffer.buffer();
       observable.take(1).flatMap(RxHelper::toObservable).forEach(
           content::appendBuffer,

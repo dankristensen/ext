@@ -1,7 +1,5 @@
-import io.vertx.groovy.core.Vertx
 import rx.Observable
 
-Vertx vertx = Vertx.vertx();
 def eb = vertx.eventBus();
 def consumer = eb.<String>consumer("the-address");
 Observable<String> obs = consumer.bodyStream().toObservable().take(4);

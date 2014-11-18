@@ -4,7 +4,6 @@ import rx.Observer
 
 import java.util.concurrent.TimeUnit
 
-Vertx vertx = Vertx.vertx();
 vertx.runOnContext({ v ->
   def initCtx = vertx.context();
   def eb = vertx.eventBus();

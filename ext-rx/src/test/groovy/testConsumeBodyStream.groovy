@@ -1,10 +1,8 @@
-import io.vertx.groovy.core.Vertx
 import rx.Observable
 import rx.Subscription
 
 import java.util.concurrent.atomic.AtomicReference;
 
-Vertx vertx = Vertx.vertx();
 def eb = vertx.eventBus();
 def consumer = eb.<String>consumer("the-address");
 Observable<String> obs = consumer.bodyStream().toObservable();

@@ -71,7 +71,7 @@ public class ObservableFuture<T> extends Observable<T> {
     this.adapter = adapter;
   }
 
-  public Handler<AsyncResult<T>> asFuture() {
+  public Handler<AsyncResult<T>> asHandler() {
     return adapter;
   }
 }

@@ -64,7 +64,7 @@ public class RxHelper {
   public static <T> Handler<AsyncResult<T>> toFuture(Observer<T> observer) {
     ObservableFuture<T> observable = RxHelper.<T>observableFuture();
     observable.subscribe(observer);
-    return observable.asFuture();
+    return observable.asHandler();
   }
 
   /**
@@ -88,7 +88,7 @@ public class RxHelper {
   public static <T> Handler<AsyncResult<T>> toFuture(Action1<T> onNext) {
     ObservableFuture<T> observable = RxHelper.<T>observableFuture();
     observable.subscribe(onNext);
-    return observable.asFuture();
+    return observable.asHandler();
   }
 
   /**
@@ -113,7 +113,7 @@ public class RxHelper {
   public static <T> Handler<AsyncResult<T>> toFuture(Action1<T> onNext, Action1<Throwable> onError) {
     ObservableFuture<T> observable = RxHelper.<T>observableFuture();
     observable.subscribe(onNext, onError);
-    return observable.asFuture();
+    return observable.asHandler();
   }
 
   /**
@@ -127,7 +127,7 @@ public class RxHelper {
   public static <T> Handler<AsyncResult<T>> toFuture(Action1<T> onNext, Action1<Throwable> onError, Action0 onComplete) {
     ObservableFuture<T> observable = RxHelper.<T>observableFuture();
     observable.subscribe(onNext, onError, onComplete);
-    return observable.asFuture();
+    return observable.asHandler();
   }
 
   /**

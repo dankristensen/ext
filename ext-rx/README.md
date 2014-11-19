@@ -33,7 +33,7 @@ vertx.setTimer(1000, observable.asHandler());
 In Vert.x future objects are modelled as async result handlers and occur as last parameter of asynchronous methods.
 
 The `io.vertx.ext.rx.java.RxHelper` can create an `io.vertx.ext.rx.java.ObservableFuture`: an `Observable` with a
-`asFuture` method returning a `Handler<AsyncResult<T>>` implementation:
+`asHandler` method returning a `Handler<AsyncResult<T>>` implementation:
 
 ```
 HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(1234).setHost("localhost"));
@@ -46,7 +46,7 @@ observable.subscribe(
     // Server could not start
   }
 );
-server.listen(observable.asFuture());
+server.listen(observable.asHandler());
 ```
 
 The `ObservableFuture<Server>` will get a single `HttpServer` object, if the `listen` operation fails,
@@ -202,7 +202,7 @@ observable.subscribe(
     // Server could not start
   }
 );
-server.listen(observable.asFuture());
+server.listen(observable.asHandler());
 ```
 
 Rx can also turn an existing Observer into an future:

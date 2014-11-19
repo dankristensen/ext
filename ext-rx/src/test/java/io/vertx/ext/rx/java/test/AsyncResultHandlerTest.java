@@ -19,7 +19,7 @@ import static org.junit.Assert.*;
   @Test
   public void testCompleteWithSuccessBeforeSubscribe() {
     ObservableFuture<String> o = RxHelper.observableFuture();
-    o.asFuture().handle(Future.completedFuture("abc"));
+    o.asHandler().handle(Future.completedFuture("abc"));
     MySubscriber<String> subscriber = new MySubscriber<>();
     o.subscribe(subscriber);
     subscriber.assertItem("abc").assertCompleted().assertEmpty();
@@ -31,7 +31,7 @@ import static org.junit.Assert.*;
     MySubscriber<String> subscriber = new MySubscriber<>();
     o.subscribe(subscriber);
     subscriber.assertEmpty();
-    o.asFuture().handle(Future.completedFuture("abc"));
+    o.asHandler().handle(Future.completedFuture("abc"));
     subscriber.assertItem("abc").assertCompleted().assertEmpty();
   }
 
@@ -39,7 +39,7 @@ import static org.junit.Assert.*;
   public void testCompleteWithFailureBeforeSubscribe() {
     ObservableFuture<String> o = RxHelper.observableFuture();
     Throwable failure = new Throwable();
-    o.asFuture().handle(Future.completedFuture(failure));
+    o.asHandler().handle(Future.completedFuture(failure));
     MySubscriber<String> subscriber = new MySubscriber<>();
     o.subscribe(subscriber);
     subscriber.assertError(failure).assertEmpty();
@@ -52,7 +52,7 @@ import static org.junit.Assert.*;
     o.subscribe(subscriber);
     subscriber.assertEmpty();
     Throwable failure = new Throwable();
-    o.asFuture().handle(Future.completedFuture(failure));
+    o.asHandler().handle(Future.completedFuture(failure));
     subscriber.assertError(failure).assertEmpty();
   }
 
@@ -71,8 +71,8 @@ import static org.junit.Assert.*;
     ObservableFuture<String> o = RxHelper.observableFuture();
     MySubscriber<String> subscriber = new MySubscriber<>();
     o.subscribe(subscriber);
-    o.asFuture().handle(Future.completedFuture("abc"));
-    o.asFuture().handle(Future.completedFuture("def"));
+    o.asHandler().handle(Future.completedFuture("abc"));
+    o.asHandler().handle(Future.completedFuture("def"));
     subscriber.assertItem("abc").assertCompleted().assertEmpty();
   }
 
@@ -82,8 +82,8 @@ import static org.junit.Assert.*;
     MySubscriber<String> subscriber = new MySubscriber<>();
     o.subscribe(subscriber);
     Throwable failure = new Throwable();
-    o.asFuture().handle(Future.completedFuture(failure));
-    o.asFuture().handle(Future.completedFuture(new Throwable()));
+    o.asHandler().handle(Future.completedFuture(failure));
+    o.asHandler().handle(Future.completedFuture(new Throwable()));
     subscriber.assertError(failure).assertEmpty();
   }
 

@@ -1,3 +1,4 @@
+import io.vertx.groovy.core.Vertx
 import rx.Observable
 import rx.Observer
 
@@ -5,7 +6,7 @@ import java.util.concurrent.TimeUnit
 
 vertx.runOnContext({
   def startTime = System.currentTimeMillis();
-  def initCtx = vertx.context();
+  def initCtx = Vertx.currentContext();
   Observable
       .timer(10, 10, TimeUnit.MILLISECONDS, vertx.scheduler())
       .buffer(100, TimeUnit.MILLISECONDS, vertx.scheduler())
@@ -14,7 +15,7 @@ vertx.runOnContext({
     private int eventCount = 0;
     public void onNext(List<Long> value) {
       eventCount++;
-      test.assertEquals(initCtx.delegate, vertx.context().delegate);
+      test.assertEquals(initCtx.delegate, Vertx.currentContext().delegate);
     }
     public void onError(Throwable e) {
       test.fail("unexpected failure");

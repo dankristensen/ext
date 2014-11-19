@@ -5,13 +5,13 @@ import rx.Observer
 import java.util.concurrent.TimeUnit
 
 vertx.runOnContext({ v ->
-  def initCtx = vertx.context();
+  def initCtx = Vertx.currentContext();
   def eb = vertx.eventBus();
   def consumer = eb.<String>localConsumer("the-address").bodyStream();
   Observer<String> observer = new Observer<String>() {
     @Override
     public void onNext(String s) {
-      test.assertEquals(initCtx.delegate, vertx.context().delegate);
+      test.assertEquals(initCtx.delegate, Vertx.currentContext().delegate);
       test.assertEquals("msg1msg2msg3", s);
       test.testComplete();
     }

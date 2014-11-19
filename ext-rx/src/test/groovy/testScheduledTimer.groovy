@@ -1,4 +1,5 @@
 import io.vertx.groovy.core.Context
+import io.vertx.groovy.core.Vertx
 import rx.Observable
 import rx.Observer
 
@@ -6,10 +7,10 @@ import java.util.concurrent.TimeUnit
 
 vertx.runOnContext({
   long startTime = System.currentTimeMillis();
-  Context initCtx = vertx.context();
+  Context initCtx = Vertx.currentContext();
   Observable.timer(100, 100, TimeUnit.MILLISECONDS, vertx.scheduler()).take(10).subscribe(new Observer<Long>() {
     public void onNext(Long value) {
-      test.assertEquals(initCtx.delegate, vertx.context().delegate);
+      test.assertEquals(initCtx.delegate, Vertx.currentContext().delegate);
     }
     public void onError(Throwable e) {
       test.fail("unexpected failure");

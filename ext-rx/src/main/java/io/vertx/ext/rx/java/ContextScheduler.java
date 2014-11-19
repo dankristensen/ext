@@ -40,7 +40,7 @@ public class ContextScheduler extends Scheduler {
 
     @Override
     public Subscription schedule(final Action0 action) {
-      vertx.context().runOnContext(event -> {
+      vertx.runOnContext(event -> {
         if (innerSubscription.isUnsubscribed())
           return;
         action.call();

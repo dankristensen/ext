@@ -1,6 +1,7 @@
 package io.vertx.ext.rx.java.test;
 
 import io.vertx.core.Context;
+import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.MessageConsumer;
@@ -328,10 +329,10 @@ public class JavaIntegrationTest extends VertxTestBase {
   public void testScheduledTimer() {
     vertx.runOnContext(v -> {
       long startTime = System.currentTimeMillis();
-      Context initCtx = vertx.context();
+      Context initCtx = Vertx.currentContext();
       Observable.timer(100, 100, TimeUnit.MILLISECONDS, RxHelper.scheduler(vertx)).take(10).subscribe(new Observer<Long>() {
         public void onNext(Long value) {
-          assertEquals(initCtx, vertx.context());
+          assertEquals(initCtx, Vertx.currentContext());
         }
 
         public void onError(Throwable e) {
@@ -352,7 +353,7 @@ public class JavaIntegrationTest extends VertxTestBase {
   public void testScheduledBuffer() {
     vertx.runOnContext(v -> {
       long startTime = System.currentTimeMillis();
-      Context initCtx = vertx.context();
+      Context initCtx = Vertx.currentContext();
       Observable
           .timer(10, 10, TimeUnit.MILLISECONDS, RxHelper.scheduler(vertx))
           .buffer(100, TimeUnit.MILLISECONDS, RxHelper.scheduler(vertx))
@@ -362,7 +363,7 @@ public class JavaIntegrationTest extends VertxTestBase {
 
             public void onNext(List<Long> value) {
               eventCount++;
-              assertEquals(initCtx, vertx.context());
+              assertEquals(initCtx, Vertx.currentContext());
             }
 
             public void onError(Throwable e) {
@@ -383,13 +384,13 @@ public class JavaIntegrationTest extends VertxTestBase {
   @Test
   public void testTimeMap() {
     vertx.runOnContext(v -> {
-      Context initCtx = vertx.context();
+      Context initCtx = Vertx.currentContext();
       EventBus eb = vertx.eventBus();
       ReadStream<String> consumer = eb.<String>localConsumer("the-address").bodyStream();
       Observer<String> observer = new Observer<String>() {
         @Override
         public void onNext(String s) {
-          assertEquals(initCtx, vertx.context());
+          assertEquals(initCtx, Vertx.currentContext());
           assertEquals("msg1msg2msg3", s);
           testComplete();
         }

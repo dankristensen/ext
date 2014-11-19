@@ -67,6 +67,16 @@ public class JsIntegrationTest extends VertxTestBase {
   }
 
   @Test
+  public void testObservableFuture() throws Throwable {
+    deployTest("test_observable_future.js");
+  }
+
+  @Test
+  public void testObserverToFuture() throws Throwable {
+    deployTest("test_observer_to_future.js");
+  }
+
+  @Test
   public void testObservableHandler() throws Throwable {
     deployTest("test_observable_handler.js");
   }
@@ -94,6 +104,16 @@ public class JsIntegrationTest extends VertxTestBase {
   @Test
   public void testTimeMap() throws Throwable {
     deployTest("test_time_map.js");
+  }
+
+  @Test
+  public void testHttpClient() throws Throwable {
+    deployTest("test_http_client.js");
+  }
+
+  @Test
+  public void testHttpClientFlatMap() throws Throwable {
+    deployTest("test_http_client_flatmap.js");
   }
 
   private void deployTest(String test) {

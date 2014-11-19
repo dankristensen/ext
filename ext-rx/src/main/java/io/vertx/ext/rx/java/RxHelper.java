@@ -30,18 +30,29 @@ public class RxHelper {
    * @return the adapted observable
    */
   public static <T> Observable<T> toObservable(ReadStream<T> stream) {
-    return Observable.create(new HandlerAdapter<>(stream));
+    return Observable.create(new ReadStreamAdapter<>(stream));
   }
 
   /**
-   * Create a new {@code ObservableHandler<T>} object: an {@link rx.Observable} implementation
+   * Create a new {@code ObservableFuture<T>} object: an {@link rx.Observable} implementation
    * implementing {@code Handler<AsyncResult<T>>}. When the async result handler completes, the observable
    * will produce the result and complete immediatly after, when it fails it will signal the error.
    *
    * @return the observable future.
    */
+  public static <T> ObservableFuture<T> observableFuture() {
+    return new ObservableFuture<>();
+  }
+
+  /**
+   * Create a new {@code ObservableHandler<T>} object: an {@link rx.Observable} implementation
+   * implementing {@code Handler<T>}. When the event handler completes, the observable
+   * will produce the event and complete immediatly after.
+   *
+   * @return the observable future.
+   */
   public static <T> ObservableHandler<T> observableHandler() {
-    return new ObservableHandler<T>();
+    return new ObservableHandler<>();
   }
 
   /**
@@ -50,7 +61,19 @@ public class RxHelper {
    * @param observer the subscriber to adapt
    * @return a {@code Handler<AsyncResult<T>>}
    */
-  public static <T> Handler<AsyncResult<T>> toHandler(Observer<T> observer) {
+  public static <T> Handler<AsyncResult<T>> toFuture(Observer<T> observer) {
+    ObservableFuture<T> observable = RxHelper.<T>observableFuture();
+    observable.subscribe(observer);
+    return observable.asHandler();
+  }
+
+  /**
+   * Adapt a {@link Subscriber} as a {@code Handler<T>;}.
+   *
+   * @param observer the subscriber to adapt
+   * @return a {@code Handler<T>}
+   */
+  public static <T> Handler<T> toHandler(Observer<T> observer) {
     ObservableHandler<T> observable = RxHelper.<T>observableHandler();
     observable.subscribe(observer);
     return observable.asHandler();
@@ -62,7 +85,19 @@ public class RxHelper {
    * @param onNext the {@code Action1<T>} you have designed to accept the resolution from the {@code Handler<AsyncResult<T>>}
    * @return a {@code Handler<AsyncResult<T>>}
    */
-  public static <T> Handler<AsyncResult<T>> toHandler(Action1<T> onNext) {
+  public static <T> Handler<AsyncResult<T>> toFuture(Action1<T> onNext) {
+    ObservableFuture<T> observable = RxHelper.<T>observableFuture();
+    observable.subscribe(onNext);
+    return observable.asHandler();
+  }
+
+  /**
+   * Adapt an item callback as a {@code Handler<T>}.
+   *
+   * @param onNext the {@code Action1<T>} you have designed to accept the resolution from the {@code Handler<T>}
+   * @return a {@code Handler<T>}
+   */
+  public static <T> Handler<T> toHandler(Action1<T> onNext) {
     ObservableHandler<T> observable = RxHelper.<T>observableHandler();
     observable.subscribe(onNext);
     return observable.asHandler();
@@ -75,8 +110,8 @@ public class RxHelper {
    * @param onError the {@code Action1<Throwable>} you have designed to accept the eventual failure from the {@code Handler<AsyncResult<T>>}
    * @return a {@code Handler<AsyncResult<T>>}
    */
-  public static <T> Handler<AsyncResult<T>> toHandler(Action1<T> onNext, Action1<Throwable> onError) {
-    ObservableHandler<T> observable = RxHelper.<T>observableHandler();
+  public static <T> Handler<AsyncResult<T>> toFuture(Action1<T> onNext, Action1<Throwable> onError) {
+    ObservableFuture<T> observable = RxHelper.<T>observableFuture();
     observable.subscribe(onNext, onError);
     return observable.asHandler();
   }
@@ -89,8 +124,8 @@ public class RxHelper {
    * @param onComplete the {@code Action0} you have designed to accept a completion notification from the {@code Handler<AsyncResult<T>>}
    * @return a {@code Handler<AsyncResult<T>>}
    */
-  public static <T> Handler<AsyncResult<T>> toHandler(Action1<T> onNext, Action1<Throwable> onError, Action0 onComplete) {
-    ObservableHandler<T> observable = RxHelper.<T>observableHandler();
+  public static <T> Handler<AsyncResult<T>> toFuture(Action1<T> onNext, Action1<Throwable> onError, Action0 onComplete) {
+    ObservableFuture<T> observable = RxHelper.<T>observableFuture();
     observable.subscribe(onNext, onError, onComplete);
     return observable.asHandler();
   }

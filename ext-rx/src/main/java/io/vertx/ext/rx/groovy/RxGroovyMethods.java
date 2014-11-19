@@ -20,7 +20,11 @@ public class RxGroovyMethods {
     return Observable.create(new HandlerAdapter<>(stream));
   }
 
-  public static <T>Handler<AsyncResult<T>> toHandler(Observer<T> observer) {
+  public static <T>Handler<AsyncResult<T>> toFuture(Observer<T> observer) {
+    return io.vertx.ext.rx.java.RxHelper.toFuture(observer);
+  }
+
+  public static <T>Handler<T> toHandler(Observer<T> observer) {
     return io.vertx.ext.rx.java.RxHelper.toHandler(observer);
   }
 

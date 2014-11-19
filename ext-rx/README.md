@@ -15,16 +15,29 @@ ReadStream<T> stream = ...;
 Observable<T> observable = RxHelper.toObservable(stream);
 ```
 
+### Handler support
+
+The `io.vertx.ext.rx.java.RxHelper` can create an `io.vertx.ext.rx.java.ObservableHandler`: an `Observable` with a
+`asHandler` method returning a `Handler<T>` implementation:
+
+```
+ObservableHandler<Long> observable = RxHelper.observableHandler();
+observable.subscribe(id -> {
+  // Fired
+});
+vertx.setTimer(1000, observable.asHandler());
+```
+
 ### Future support
 
 In Vert.x future objects are modelled as async result handlers and occur as last parameter of asynchronous methods.
 
-The `io.vertx.ext.rx.java.RxHelper` can create an `io.vertx.ext.rx.java.ObservableHandler`: an `Observable` with a
+The `io.vertx.ext.rx.java.RxHelper` can create an `io.vertx.ext.rx.java.ObservableFuture`: an `Observable` with a
 `asHandler` method returning a `Handler<AsyncResult<T>>` implementation:
 
 ```
 HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(1234).setHost("localhost"));
-ObservableHandler<HttpServer> observable = RxHelper.observableHandler();
+ObservableFuture<HttpServer> observable = RxHelper.observableFuture();
 observable.subscribe(
   server -> {
     // Server is listening
@@ -36,20 +49,20 @@ observable.subscribe(
 server.listen(observable.asHandler());
 ```
 
-The `ObservableHandler<Server>` will get a single `HttpServer` object, if the `listen` operation fails,
+The `ObservableFuture<Server>` will get a single `HttpServer` object, if the `listen` operation fails,
 the subscriber will be notified with the failure.
 
 The helper can also turn an existing `Observer` into an handler:
 
 ```
 Observer<Server> observer = ...;
-Handler<AsyncResult<Server>> o = RxHelper.toHandler(observer);
+Handler<AsyncResult<Server>> o = RxHelper.toFuture(observer);
 ```
 
 It also works with just actions:
 
 ```
-Handler<AsyncResult<Server>> o = RxHelper.toHandler(
+Handler<AsyncResult<Server>> o = RxHelper.toFuture(
   server -> {}, // onNext
   cause -> {},  // onError
   () -> {}      // onCompleted
@@ -143,16 +156,44 @@ var Rx = require("rx.vertx");
 var observable = Rx.Observable.fromReadStream(stream);
 ```
 
-### Future support
-
-In Vert.x future objects are modelled as async result handlers and occur as last parameter of asynchronous methods.
+### Handler support
 
 The `rx.vertx` module provides an `observableHandler` function:
 
 ```
-var server = vertx.createHttpServer({ "port":1234, "host":"localhost" });
 var Rx = require("rx.vertx");
 var observable = Rx.observableHandler();
+observable.subscribe(
+  function(evt) {
+    // Got event
+  }
+);
+vertx.setTimer(1000, observable.asHandler());
+```
+
+Rx can also turn an existing Observer into an handler:
+
+```
+var Rx = require("rx.vertx");
+var observer = Rx.Observer.create(
+  function(evt) {
+    // Got event
+  }
+);
+var handler = observer.toHandler();
+vertx.setTimer(1000, handler);
+```
+
+### Future support
+
+In Vert.x future objects are modelled as async result handlers and occur as last parameter of asynchronous methods.
+
+The `rx.vertx` module provides an `observableFuture` function:
+
+```
+var server = vertx.createHttpServer({ "port":1234, "host":"localhost" });
+var Rx = require("rx.vertx");
+var observable = Rx.observableFuture();
 observable.subscribe(
   function(server) {
     // Server is listening
@@ -164,7 +205,7 @@ observable.subscribe(
 server.listen(observable.asHandler());
 ```
 
-Rx can also turn an existing Observer into an handler:
+Rx can also turn an existing Observer into an future:
 
 ```
 var observer = Rx.Observer.create(
@@ -172,7 +213,7 @@ var observer = Rx.Observer.create(
   function(err) { ... },  // onError
   function() { ... }      // onCompleted
 );
-var handler = observer.toHandler();
+var future = observer.toFuture();
 ```
 
 ### Scheduler support
@@ -211,19 +252,33 @@ ReadStream<T> stream = ...;
 Observable<T> observable = stream.toObservable();
 ```
 
+### Handler support
+
+The RxJava `io.vertx.ext.rx.java.RxHelper` should be used to:
+- create an `io.vertx.ext.rx.java.ObservableHandler`,
+- transform actions to an handler
+
+The RxGroovy extension module adds the `toHandler` method on the `rx.Observer` class:
+
+```
+Observer<Long> observer = ...;
+Handler<Long> handler = observer.toHandler();
+vertx.setTimer(1000, observable.asHandler());
+```
+
 ### Future support
 
 In Vert.x future objects are modelled as async result handlers and occur as last parameter of asynchronous methods.
 
 The RxJava `io.vertx.ext.rx.java.RxHelper` should be used to:
-- create an `io.vertx.ext.rx.java.ObservableHandler`,
+- create an `io.vertx.ext.rx.java.ObservableFuture`,
 - transform actions to an async result handler
 
-The RxGroovy extension module adds the `toHandler` method on the `rx.Observer` class:
+The RxGroovy extension module adds the `toFuture` method on the `rx.Observer` class:
 
 ```
 Observer<Server> observer = ...;
-Handler<AsyncResult<Server>> o = observer.toHandler();
+Handler<AsyncResult<Server>> o = observer.toFuture();
 ```
 
 ### Scheduler support

@@ -1,11 +1,9 @@
 import io.vertx.groovy.core.Context
-import io.vertx.groovy.core.Vertx
 import rx.Observable
 import rx.Observer
 
 import java.util.concurrent.TimeUnit
 
-Vertx vertx = Vertx.vertx();
 vertx.runOnContext({
   long startTime = System.currentTimeMillis();
   Context initCtx = vertx.currentContext();

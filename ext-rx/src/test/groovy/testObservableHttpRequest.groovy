@@ -1,7 +1,6 @@
 import io.vertx.core.http.HttpMethod
 import io.vertx.ext.rx.java.RxHelper
-import io.vertx.ext.rx.java.ObservableHandler
-import io.vertx.groovy.core.Vertx
+import io.vertx.ext.rx.java.ObservableFuture
 import io.vertx.groovy.core.buffer.Buffer
 import io.vertx.groovy.core.http.HttpClientRequest
 import io.vertx.groovy.core.http.HttpServer
@@ -10,9 +9,7 @@ import rx.Subscriber
 import rx.Observer
 import rx.Observable
 
-Vertx vertx = Vertx.vertx();
-
-ObservableHandler<HttpServer> onListen = RxHelper.observableHandler();
+ObservableFuture<HttpServer> onListen = RxHelper.observableFuture();
 onListen.subscribe({ server ->
   HttpClientRequest req = vertx.createHttpClient().request(HttpMethod.PUT, 1234, "localhost", "/some/path", { resp -> });
   req.putHeader("Content-Length", "3");

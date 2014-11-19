@@ -1,6 +1,5 @@
 package io.vertx.ext.rx.java;
 
-import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import rx.Observable;
 
@@ -9,29 +8,19 @@ import rx.Observable;
  */
 public class ObservableHandler<T> extends Observable<T> {
 
-  private static class Adapter<T> extends SingleOnSubscribeAdapter<T> implements Handler<AsyncResult<T>> {
+  private abstract static class HandlerAdapter<T> extends SingleOnSubscribeAdapter<T> implements Handler<T> {
 
-    private AsyncResult<T> buffered;
     private boolean subscribed;
 
     @Override
     public void execute() {
-      AsyncResult<T> result = buffered;
-      if (result != null) {
-        buffered = null;
-        dispatch(result, this);
-      } else {
-        subscribed = true;
-      }
+      subscribed = true;
     }
 
     @Override
-    public void handle(AsyncResult<T> event) {
+    public void handle(T event) {
       if (subscribed) {
-        subscribed = false;
-        dispatch(event, this);
-      } else {
-        this.buffered = event;
+        dispatch(event);
       }
     }
 
@@ -40,28 +29,26 @@ public class ObservableHandler<T> extends Observable<T> {
       subscribed = false;
     }
 
-    private static <T> void dispatch(AsyncResult<T> ar, Adapter<T> adapter) {
-      if (ar.succeeded()) {
-        adapter.fireNext(ar.result());
-        adapter.fireComplete();
-      } else {
-        adapter.fireError(ar.cause());
-      }
-    }
+    protected abstract void dispatch(T event);
   }
 
   public ObservableHandler() {
-    this(new Adapter<>());
+    this(new HandlerAdapter<T>() {
+      @Override
+      protected void dispatch(T event) {
+        this.fireNext(event);
+      }
+    });
   }
 
-  private Adapter<T> adapter;
+  private HandlerAdapter<T> adapter;
 
-  private ObservableHandler(Adapter<T> adapter) {
+  private ObservableHandler(HandlerAdapter<T> adapter) {
     super(adapter);
     this.adapter = adapter;
   }
 
-  public Handler<AsyncResult<T>> asHandler() {
+  public Handler<T> asHandler() {
     return adapter;
   }
 }

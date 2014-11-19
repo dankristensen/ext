@@ -5,8 +5,10 @@ import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.MessageConsumer;
+import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpClientOptions;
 import io.vertx.core.http.HttpClientRequest;
+import io.vertx.core.http.HttpClientResponse;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
@@ -17,6 +19,7 @@ import io.vertx.core.net.NetServer;
 import io.vertx.core.net.NetServerOptions;
 import io.vertx.core.net.NetSocket;
 import io.vertx.core.streams.ReadStream;
+import io.vertx.ext.rx.java.ObservableFuture;
 import io.vertx.ext.rx.java.ObservableHandler;
 import io.vertx.ext.rx.java.RxHelper;
 import io.vertx.test.core.VertxTestBase;
@@ -146,7 +149,7 @@ public class JavaIntegrationTest extends VertxTestBase {
 
   @Test
   public void testObservableNetSocket() {
-    ObservableHandler<NetServer> onListen = RxHelper.observableHandler();
+    ObservableFuture<NetServer> onListen = RxHelper.observableFuture();
     onListen.subscribe(
         server -> vertx.createNetClient(new NetClientOptions()).connect(1234, "localhost", ar -> {
           assertTrue(ar.succeeded());
@@ -201,15 +204,15 @@ public class JavaIntegrationTest extends VertxTestBase {
 
   @Test
   public void testObservableWebSocket() {
-    ObservableHandler<HttpServer> onListen = RxHelper.observableHandler();
+    ObservableFuture<HttpServer> onListen = RxHelper.observableFuture();
     onListen.subscribe(
-        server -> vertx.createHttpClient(new HttpClientOptions()).connectWebsocket(1234, "localhost", "/some/path", ws -> {
+        server -> vertx.createHttpClient(new HttpClientOptions()).connectWebsocket(8080, "localhost", "/some/path", ws -> {
           ws.write(Buffer.buffer("foo"));
           ws.close();
         }),
         error -> fail(error.getMessage())
     );
-    HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(1234).setHost("localhost"));
+    HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(8080).setHost("localhost"));
     Observable<ServerWebSocket> socketObs = RxHelper.toObservable(server.websocketStream());
     socketObs.subscribe(new Subscriber<ServerWebSocket>() {
       @Override
@@ -254,17 +257,17 @@ public class JavaIntegrationTest extends VertxTestBase {
 
   @Test
   public void testObservableHttpRequest() {
-    ObservableHandler<HttpServer> onListen = RxHelper.observableHandler();
+    ObservableFuture<HttpServer> onListen = RxHelper.observableFuture();
     onListen.subscribe(
         server -> {
-          HttpClientRequest req = vertx.createHttpClient(new HttpClientOptions()).request(HttpMethod.PUT, 1234, "localhost", "/some/path", resp -> {
+          HttpClientRequest req = vertx.createHttpClient(new HttpClientOptions()).request(HttpMethod.PUT, 8080, "localhost", "/some/path", resp -> {
           });
           req.putHeader("Content-Length", "3");
           req.write("foo");
         },
         error -> fail(error.getMessage())
     );
-    HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(1234).setHost("localhost"));
+    HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(8080).setHost("localhost"));
     Observable<HttpServerRequest> socketObs = RxHelper.toObservable(server.requestStream());
     socketObs.subscribe(new Subscriber<HttpServerRequest>() {
       @Override
@@ -331,9 +334,11 @@ public class JavaIntegrationTest extends VertxTestBase {
         public void onNext(Long value) {
           assertEquals(initCtx, Vertx.currentContext());
         }
+
         public void onError(Throwable e) {
           fail("unexpected failure");
         }
+
         public void onCompleted() {
           long timeTaken = System.currentTimeMillis() - startTime;
           assertTrue(Math.abs(timeTaken - 1000) < 100);
@@ -355,13 +360,16 @@ public class JavaIntegrationTest extends VertxTestBase {
           .take(10)
           .subscribe(new Observer<List<Long>>() {
             private int eventCount = 0;
+
             public void onNext(List<Long> value) {
               eventCount++;
               assertEquals(initCtx, Vertx.currentContext());
             }
+
             public void onError(Throwable e) {
               fail("unexpected failure");
             }
+
             public void onCompleted() {
               long timeTaken = System.currentTimeMillis() - startTime;
               assertEquals(10, eventCount);
@@ -403,6 +411,97 @@ public class JavaIntegrationTest extends VertxTestBase {
       eb.send("the-address", "msg1");
       eb.send("the-address", "msg2");
       eb.send("the-address", "msg3");
+    });
+    await();
+  }
+
+  @Test
+  public void testObserverToFuture() {
+    HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(8080)).requestHandler(req -> {});
+    AtomicInteger count = new AtomicInteger();
+    Observer<HttpServer> observer = new Observer<HttpServer>() {
+      @Override
+      public void onCompleted() {
+        server.close();
+        assertEquals(1, count.get());
+        testComplete();
+      }
+
+      @Override
+      public void onError(Throwable e) {
+        fail(e.getMessage());
+      }
+
+      @Override
+      public void onNext(HttpServer httpServer) {
+        count.incrementAndGet();
+      }
+    };
+    server.listen(RxHelper.toFuture(observer));
+    await();
+  }
+
+  @Test
+  public void testObserverToHandler() throws Exception {
+    Observer<Long> observer = new Observer<Long>() {
+      @Override
+      public void onCompleted() {
+        fail();
+      }
+
+      @Override
+      public void onError(Throwable e) {
+        fail(e.getMessage());
+      }
+
+      @Override
+      public void onNext(Long l) {
+        testComplete();
+      }
+    };
+    vertx.setTimer(1, RxHelper.toHandler(observer));
+    await();
+  }
+
+  @Test
+  public void testHttpClient() {
+    HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(8080));
+    server.requestStream().handler(req -> {
+      req.response().setChunked(true).end("some_content");
+    });
+    server.listen(ar -> {
+      HttpClient client = vertx.createHttpClient(new HttpClientOptions());
+      client.request(HttpMethod.GET, 8080, "localhost", "/the_uri", resp -> {
+        Buffer content = Buffer.buffer();
+        Observable<Buffer> observable = RxHelper.toObservable(resp);
+        observable.forEach(content::appendBuffer, err -> fail(), () -> {
+          server.close();
+          assertEquals("some_content", content.toString("UTF-8"));
+          testComplete();
+        });
+      }).end();
+    });
+    await();
+  }
+
+  @Test
+  public void testHttpClientFlatMap() {
+    HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(8080));
+    server.requestStream().handler(req -> {
+      req.response().setChunked(true).end("some_content");
+    });
+    server.listen(ar -> {
+      HttpClient client = vertx.createHttpClient(new HttpClientOptions());
+      ObservableHandler<HttpClientResponse> observable = RxHelper.observableHandler();
+      client.request(HttpMethod.GET, 8080, "localhost", "/the_uri", observable.asHandler()).end();
+      Buffer content = Buffer.buffer();
+      observable.take(1).flatMap(RxHelper::toObservable).forEach(
+          content::appendBuffer,
+          err -> fail(), () -> {
+        server.close();
+        assertEquals("some_content", content.toString("UTF-8"));
+        testComplete();
+      });
     });
     await();
   }
